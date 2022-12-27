@@ -18,7 +18,7 @@ class SignUpSerializer(serializers.Serializer):
 class TokenSerializer(serializers.Serializer):
     """Сериализатор для метода get_token."""
 
-    username = serializers.CharField(
+    email = serializers.EmailField(
         max_length=150,
         required=True
     )

@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.urls import path, include
 
-from .views import get_confirmation_message
+from .views import get_confirmation_message, get_token
 
 urlpatterns = [
-    path('auth/email/', get_confirmation_message)
+    path('auth/email/', get_confirmation_message),
+    path('auth/token/', get_token)
 ]
