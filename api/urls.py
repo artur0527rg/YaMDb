@@ -20,4 +20,7 @@ from .views import get_confirmation_message, get_token
 urlpatterns = [
     path('auth/email/', get_confirmation_message),
     path('auth/token/', get_token)
+    # /categories/
+    # /genres/
+    # /titles/
 ]
