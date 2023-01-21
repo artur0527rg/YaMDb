@@ -4,6 +4,7 @@ from rest_framework.validators import ValidationError
 
 from reviews.models import User
 
+
 class SignUpSerializer(serializers.Serializer):
     password = None
     email = serializers.EmailField(
@@ -14,6 +15,7 @@ class SignUpSerializer(serializers.Serializer):
         required = True,
         validators = [UniqueValidator(queryset=User.objects.all())]
     )
+
 
 class TokenSerializer(serializers.Serializer):
     """Сериализатор для метода get_token."""
@@ -30,3 +32,34 @@ class TokenSerializer(serializers.Serializer):
         if value == '':
             raise ValidationError('Это поле не может быть пустым.')
         return value
+
+
+class UserSerializer(serializers.ModelSerializer):
+    '''Сериализатор для UserViewSet'''
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'      
+        )
+
+
+class UserMeSerializer(serializers.ModelSerializer):
+    '''Сериализатор для UserViewSet для пользователя'''
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        read_only_fields = ('role',)

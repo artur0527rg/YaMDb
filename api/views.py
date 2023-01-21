@@ -4,12 +4,20 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework.filters import SearchFilter
+from rest_framework.decorators import action
 
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
-from .serializers import SignUpSerializer, TokenSerializer
+from api.permissions import AdminOrReadOnly, IsAdmin, IsAuthorOrStaffOrReadOnly
+from api.serializers import (
+    SignUpSerializer,
+    TokenSerializer,
+    UserSerializer,
+    UserMeSerializer
+)
 from reviews.models import User
 
 # Create your views here.
@@ -50,13 +58,33 @@ def get_token(request):
             user,
             serializer.validated_data['confirmation_code']
         ):
-            token = RefreshToken.for_user(user)
+            token = AccessToken.for_user(user)
             return Response({'token':str(token)}, status=status.HTTP_201_CREATED)
         return Response({'error':'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-    
+class UserViewSet(viewsets.ModelViewSet):
+    '''Вьюсет для users'''
 
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
+    lookup_field = 'username'
+    filter_backends = (SearchFilter,)
+    search_fields = ('username',)
 
+    @action(
+        methods=['get', 'patch'],
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+        serializer_class=UserMeSerializer 
+    )
+    def me(self, request):
+        self.kwargs['username'] = request.user.username
+        if self.request.method == "PATCH":
+            self.partial_update(request)
+            request.user.refresg_from_db()
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
