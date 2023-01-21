@@ -85,6 +85,6 @@ class UserViewSet(viewsets.ModelViewSet):
         self.kwargs['username'] = request.user.username
         if self.request.method == "PATCH":
             self.partial_update(request)
-            request.user.refresg_from_db()
+            request.user.refresh_from_db()
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
