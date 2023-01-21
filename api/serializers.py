@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.validators import ValidationError
 
-from reviews.models import User
+from reviews.models import User, Category
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -35,7 +35,7 @@ class TokenSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    '''Сериализатор для UserViewSet'''
+    '''Сериализатор для UserViewSet.'''
 
     class Meta:
         model = User
@@ -50,7 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserMeSerializer(serializers.ModelSerializer):
-    '''Сериализатор для UserViewSet для пользователя'''
+    '''Сериализатор для UserViewSet для пользователя.'''
 
     class Meta:
         model = User
@@ -63,3 +63,15 @@ class UserMeSerializer(serializers.ModelSerializer):
             'role'
         )
         read_only_fields = ('role',)
+
+
+class CategoriesSerializer(serializers.ModelSerializer):
+    '''Сериализатор для CategoriesViewSet'''
+
+    class Meta:
+        model = Category
+        exclude = ('id',)
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url':{'lookup_field':'slug'}
+        }

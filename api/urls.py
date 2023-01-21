@@ -17,12 +17,19 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    CategoriesViewSet,
     UserViewSet,
     get_confirmation_message,
     get_token
 )
 
 v1_router = DefaultRouter()
+
+v1_router.register(
+    'categories',
+    CategoriesViewSet,
+    basename='categories'
+)
 
 v1_router.register(
     'users',

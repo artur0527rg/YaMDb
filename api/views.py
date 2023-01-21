@@ -11,20 +11,22 @@ from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action
 
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
+from api.mixins import CreateListDestroyViewSet
 from api.permissions import AdminOrReadOnly, IsAdmin, IsAuthorOrStaffOrReadOnly
 from api.serializers import (
     SignUpSerializer,
     TokenSerializer,
     UserSerializer,
-    UserMeSerializer
+    UserMeSerializer,
+    CategoriesSerializer
 )
-from reviews.models import User
+from reviews.models import User, Category
 
 # Create your views here.
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_confirmation_message(request):
-    '''Отправка кода подтверждения на email пользователя(регистрация)'''
+    '''Отправка кода подтверждения на email пользователя(регистрация).'''
 
     serializer = SignUpSerializer(data=request.data)
     if serializer.is_valid():
@@ -49,7 +51,7 @@ def get_confirmation_message(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token(request):
-    '''Получения токена для запросов'''
+    '''Получения токена для запросов.'''
 
     serializer = TokenSerializer(data=request.data)
     if serializer.is_valid():
@@ -66,7 +68,7 @@ def get_token(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    '''Вьюсет для users'''
+    '''Вьюсет для users.'''
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -88,3 +90,14 @@ class UserViewSet(viewsets.ModelViewSet):
             request.user.refresh_from_db()
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+
+
+class CategoriesViewSet(CreateListDestroyViewSet):
+    '''Вьюсет для category.'''
+
+    queryset = Category.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (AdminOrReadOnly,)
+    lookup_field = 'slug'
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
