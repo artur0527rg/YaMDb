@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.validators import ValidationError
 
-from reviews.models import User, Category
+from reviews.models import User, Category, Genre
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -74,4 +74,16 @@ class CategoriesSerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
         extra_kwargs = {
             'url':{'lookup_field':'slug'}
+        }
+
+
+class GenresSerializer(serializers.ModelSerializer):
+    '''Сериализатор для GenresViewSet'''
+
+    class Meta:
+        model = Genre
+        exclude = ('id',)
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field':'slug'}
         }

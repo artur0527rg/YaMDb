@@ -14,13 +14,14 @@ from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from api.mixins import CreateListDestroyViewSet
 from api.permissions import AdminOrReadOnly, IsAdmin, IsAuthorOrStaffOrReadOnly
 from api.serializers import (
+    GenresSerializer,
     SignUpSerializer,
     TokenSerializer,
     UserSerializer,
     UserMeSerializer,
     CategoriesSerializer
 )
-from reviews.models import User, Category
+from reviews.models import User, Category, Genre
 
 # Create your views here.
 @api_view(['POST'])
@@ -101,3 +102,15 @@ class CategoriesViewSet(CreateListDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
+
+
+class GenresViewSet(CreateListDestroyViewSet):
+    '''Вьюсет для genres.'''
+
+    queryset = Genre.objects.all()
+    serializer_class = GenresSerializer
+    permission_classes = (AdminOrReadOnly,)
+    lookup_field = 'slug'
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+
