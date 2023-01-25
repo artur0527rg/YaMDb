@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 def year_validator(value):
     """Валидатор для поля year, модели Title."""
@@ -63,7 +64,7 @@ class Genre(models.Model):
     def __str__(self) -> str:
         return self.slug
 
-class Titile(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название')
     year = models.IntegerField(validators=[year_validator])
     description = models.TextField(null=True, blank=True)
@@ -80,3 +81,30 @@ class Titile(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Review(models.Model):
+    text = models.TextField(max_length=3000)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    score = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
+    pub_date = models.DateTimeField(auto_now_add=True)
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+
+    class Meta:
+        ordering = ['pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_author_title'
+            )
+        ]

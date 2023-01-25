@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status, viewsets
@@ -9,11 +10,15 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
 
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
+from api.filters import TitleFilter
 from api.mixins import CreateListDestroyViewSet
 from api.permissions import AdminOrReadOnly, IsAdmin, IsAuthorOrStaffOrReadOnly
 from api.serializers import (
+    WriteTitleSerializer,
+    ReadTitleSerializer,
     GenresSerializer,
     SignUpSerializer,
     TokenSerializer,
@@ -21,7 +26,7 @@ from api.serializers import (
     UserMeSerializer,
     CategoriesSerializer
 )
-from reviews.models import User, Category, Genre
+from reviews.models import User, Category, Genre, Title
 
 # Create your views here.
 @api_view(['POST'])
@@ -114,3 +119,18 @@ class GenresViewSet(CreateListDestroyViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
 
+
+class TitlesViewSet(viewsets.ModelViewSet):
+    '''Вьюсет для titles.'''
+ 
+    queryset = Title.objects.annotate(
+        rating = Avg('reviews__score')
+    ).all()
+    permission_classes = (AdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ReadTitleSerializer
+        return WriteTitleSerializer

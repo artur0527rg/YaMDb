@@ -1,8 +1,9 @@
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.validators import ValidationError
 
-from reviews.models import User, Category, Genre
+from reviews.models import User, Category, Genre, Title
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -87,3 +88,48 @@ class GenresSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field':'slug'}
         }
+
+class ReadTitleSerializer(serializers.ModelSerializer):
+    '''Сериализатор для TitlesViewSet на чтение'''
+
+    genre = GenresSerializer(read_only=True, many=True)
+    category = CategoriesSerializer(read_only=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'rating',
+            'description', 'genre', 'category'
+        )
+
+
+class WriteTitleSerializer(serializers.ModelSerializer):
+    '''Сериализатор для TitlesViewSet на запись'''
+    
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset = Genre.objects.all(),
+        many = True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset = Category.objects.all(),
+        required = False
+    )
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'description',
+            'genre', 'category'
+        )
+
+        def validate_year(self, value):
+            '''Проверка поля year на адекватность значений'''
+
+            if value > timezone.now().year:
+                raise serializers.ValidationError(
+                    'Год выпуска не может быть больше настоящего'
+                )
+            return value

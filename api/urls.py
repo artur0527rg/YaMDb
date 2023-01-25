@@ -17,6 +17,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    TitlesViewSet,
     CategoriesViewSet,
     GenresViewSet,
     UserViewSet,
@@ -36,6 +37,12 @@ v1_router.register(
     'genres',
     GenresViewSet,
     basename="genres"
+)
+
+v1_router.register(
+    'titles',
+    TitlesViewSet,
+    basename='titles'
 )
 
 v1_router.register(
