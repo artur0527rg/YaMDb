@@ -17,6 +17,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    ReviewsViewSet,
     TitlesViewSet,
     CategoriesViewSet,
     GenresViewSet,
@@ -43,6 +44,12 @@ v1_router.register(
     'titles',
     TitlesViewSet,
     basename='titles'
+)
+
+v1_router.register(
+    r'titles/(?P<title_id>\d+)/reviews',
+    ReviewsViewSet,
+    basename='reviews'
 )
 
 v1_router.register(

@@ -17,6 +17,7 @@ from api.filters import TitleFilter
 from api.mixins import CreateListDestroyViewSet
 from api.permissions import AdminOrReadOnly, IsAdmin, IsAuthorOrStaffOrReadOnly
 from api.serializers import (
+    ReviewSerializer,
     WriteTitleSerializer,
     ReadTitleSerializer,
     GenresSerializer,
@@ -134,3 +135,18 @@ class TitlesViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return ReadTitleSerializer
         return WriteTitleSerializer
+
+
+class ReviewsViewSet(viewsets.ModelViewSet):
+    '''Вьюсет для reviews.'''
+
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorOrStaffOrReadOnly,)
+
+    def get_queryset(self, *args, **kwargs):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
