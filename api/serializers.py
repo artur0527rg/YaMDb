@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.validators import ValidationError
 
-from reviews.models import User, Category, Genre, Title, Review
+from reviews.models import User, Category, Genre, Title, Review, Comment
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -160,3 +160,16 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    '''Сериализатор для CommentViewSet'''
+    
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only = True
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment

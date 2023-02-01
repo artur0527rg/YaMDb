@@ -17,6 +17,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    CommentViewSet,
     ReviewsViewSet,
     TitlesViewSet,
     CategoriesViewSet,
@@ -53,6 +54,12 @@ v1_router.register(
 )
 
 v1_router.register(
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    CommentViewSet,
+    basename='comments'
+)
+
+v1_router.register(
     'users',
     UserViewSet,
     basename='users'
@@ -62,7 +69,4 @@ urlpatterns = [
     path('', include(v1_router.urls)),
     path('auth/email/', get_confirmation_message),
     path('auth/token/', get_token)
-    # /categories/
-    # /genres/
-    # /titles/
 ]
